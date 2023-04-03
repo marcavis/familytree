@@ -17,22 +17,12 @@ for filename in os.listdir(folder_path):
         # Load the image using Pillow and store it in the dictionary
         images[name] = Image.open(os.path.join(folder_path, filename))
 
-# Create a new image for the table
-table_width = 6 * OC_SIZE
-table_height = 6 * OC_SIZE
-table_image = Image.new('RGB', (table_width, table_height), (255, 255, 255))
+names = ['lea', 'kazue', 'karin', 'aedus', 'aoife', 'myou']
 
-# Paste the oc images onto the table
-# pasteat('lea', 1, 0, table_image, images)
-# pasteat('lea', 0, 1, table_image, images)
-# pasteat('kazue', 2, 0, table_image, images)
-# pasteat('kazue', 0, 2, table_image, images)
-# pasteat('karin', 3, 0, table_image, images)
-# pasteat('karin', 0, 3, table_image, images)
-# pasteat('tohka', 4, 0, table_image, images)
-# pasteat('tohka', 0, 4, table_image, images)
-# pasteat('yuria', 5, 0, table_image, images)
-# pasteat('yuria', 0, 5, table_image, images)
+# Create a new image for the table
+table_width = len(names) * OC_SIZE + OC_SIZE
+table_height = len(names) * OC_SIZE + OC_SIZE
+table_image = Image.new('RGB', (table_width, table_height), (255, 255, 255))
 
 
 # Draw a grid on the image
@@ -50,7 +40,9 @@ draw.text((0,100), "MOMS↓", font=font, fill=(127,0,0))
 draw.text((20,0), "DADS→", font=font, fill=(127,0,0))
 
 # Draw the images or names onto the table
-for i, name in enumerate(['lea', 'kazue', 'karin', 'aedus', 'aoife']):
+
+rollcall = enumerate(names)
+for i, name in rollcall:
     x = (i + 1) * grid_step 
     y = 0 * grid_step 
     try:
@@ -63,6 +55,20 @@ for i, name in enumerate(['lea', 'kazue', 'karin', 'aedus', 'aoife']):
     except KeyError:
         # If the image doesn't exist, draw the name instead
         draw.text((y, x), name, font=font, fill=(0, 0, 0))
+
+q = [('sumire', 'karin', 'kazue'),
+    ('aoko', 'aoife', 'kazue'),
+    ('karin', 'lea', 'kazue'),
+    ('aoife', 'lea', 'aedus'),
+    ('lynn', 'karin', 'aoife'),
+    ('miya', 'lea', 'myou')]
+for p in q:
+    childpos = (names.index(p[2]) * grid_step + grid_step, names.index(p[1]) * grid_step + grid_step)
+    try:
+        table_image.paste(images[p[0]], childpos, images[p[0]])
+    except KeyError:
+        # If the image doesn't exist, draw the name instead
+        draw.text(childpos, p[0], font=font, fill=(0, 0, 0))
 
 # Save the table image to a file
 table_image.save('board.png')
