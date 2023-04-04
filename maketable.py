@@ -17,7 +17,25 @@ for filename in os.listdir(folder_path):
         # Load the image using Pillow and store it in the dictionary
         images[name] = Image.open(os.path.join(folder_path, filename))
 
-names = ['lea', 'kazue', 'karin', 'aedus', 'aoife', 'myou']
+
+# Open the families file
+with open("families.txt", "r") as f:
+    # Initialize the list of families
+    families = []
+    
+    # Loop over each line in the file
+    for line in f:
+        # Split the line into a tuple of names
+        thesenames = tuple(line.strip().split())
+        
+        # Append the tuple to the list of families
+        families.append(thesenames)
+
+# Print the list of families
+# print(families)
+
+names = list(set([elem for tup in families for elem in tup]))
+#names = ['lea', 'kazue', 'karin', 'aedus', 'aoife', 'myou']
 
 # Create a new image for the table
 table_width = len(names) * OC_SIZE + OC_SIZE
@@ -56,13 +74,10 @@ for i, name in rollcall:
         # If the image doesn't exist, draw the name instead
         draw.text((y, x), name, font=font, fill=(0, 0, 0))
 
-q = [('sumire', 'karin', 'kazue'),
-    ('aoko', 'aoife', 'kazue'),
-    ('karin', 'lea', 'kazue'),
-    ('aoife', 'lea', 'aedus'),
-    ('lynn', 'karin', 'aoife'),
-    ('miya', 'lea', 'myou')]
-for p in q:
+
+
+
+for p in families:
     childpos = (names.index(p[2]) * grid_step + grid_step, names.index(p[1]) * grid_step + grid_step)
     try:
         table_image.paste(images[p[0]], childpos, images[p[0]])
