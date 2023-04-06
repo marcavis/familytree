@@ -8,6 +8,7 @@ folder_path = 'portraits'
 images = {}
 OC_SIZE = 150
 
+
 # Iterate over the files in the folder
 for filename in os.listdir(folder_path):
     # Check if the file is a PNG image
@@ -15,7 +16,7 @@ for filename in os.listdir(folder_path):
         # Extract the name of the image from the filename
         name = os.path.splitext(filename)[0]
         # Load the image using Pillow and store it in the dictionary
-        images[name] = Image.open(os.path.join(folder_path, filename))
+        images[name] = Image.open(os.path.join(folder_path, filename)).resize((OC_SIZE, OC_SIZE))
 
 
 # Open the families file
@@ -28,7 +29,7 @@ with open("families.txt", "r") as f:
     # Loop over each line in the file
     for line in f:
         # Split the line into a tuple of names
-        thesenames = tuple(line.strip().split())
+        thesenames = tuple(line.lower().strip().split())
         
         # Append the tuple to the list of families
         families.append(thesenames)
@@ -75,7 +76,11 @@ for i, name in rollcalldads:
         table_image.paste(images[name], (x, y), images[name])
     except KeyError:
         # If the image doesn't exist, draw the name instead
-        draw.text((x, y), name, font=font, fill=(0, 0, 0))
+        table_image.paste(images['unknown'], (x, y), images['unknown'])
+        draw.text((x+20, y+100), name, font=font, fill=(0, 0, 0))
+    except ValueError:
+        #this portrait isn't transparent
+        table_image.paste(images[name], (x, y))
 
 rollcallmoms = enumerate(moms)
 for i, name in rollcallmoms:
@@ -85,7 +90,11 @@ for i, name in rollcallmoms:
         table_image.paste(images[name], (y, x), images[name])
     except KeyError:
         # If the image doesn't exist, draw the name instead
-        draw.text((y, x), name, font=font, fill=(0, 0, 0))
+        table_image.paste(images['unknown'], (y, x), images['unknown'])
+        draw.text((y+20, x+100), name, font=font, fill=(0, 0, 0))
+    except ValueError:
+        #this portrait isn't transparent
+        table_image.paste(images[name], (y, x))
 
 
 for p in families:
@@ -96,6 +105,9 @@ for p in families:
         # If the image doesn't exist, draw the name instead
         table_image.paste(images['unknown'], childpos, images['unknown'])
         draw.text((childpos[0]+20, childpos[1]+100), p[0], font=font, fill=(0, 0, 0))
+    except ValueError:
+        #this portrait isn't transparent
+        table_image.paste(images[p[0]], childpos)
 
 # Save the table image to a file
 table_image.save('board.png')
