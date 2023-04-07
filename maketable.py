@@ -1,8 +1,6 @@
+#!/usr/bin/env python
 from PIL import Image, ImageDraw, ImageFont
 import os
-
-def pasteat(oc, x, y, table, images):
-    table.paste(images[oc],(x*150,y*150),images[oc])
 
 folder_path = 'portraits'
 images = {}
