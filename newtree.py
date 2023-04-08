@@ -6,6 +6,7 @@ folder_path = 'portraits'
 images = {}
 OC_SIZE = 150
 SPACING = 20
+ALLNAMES = True
 
 class Person:
     def __init__(self, name, mom=None, dad=None):
@@ -69,15 +70,17 @@ births = []
 for p in people:
     births = births + people[p].sires
 
+births.sort(key=lambda x: (x[0], x[1]))
+
 levels = [people[p].getlevel() for p in people]
 maxlevel = max(levels) 
 #maxheight = max([levels.count(x) for x in range(maxlevel)])
 relLevels = [max(people[b[0]].getlevel(), people[b[1]].getlevel()) for b in births]
-maxheight = max([relLevels.count(x) for x in relLevels])
+maxwidth = max([relLevels.count(x) for x in relLevels])
 
 # Create a new image for the table
-table_width = maxlevel * (OC_SIZE * 2 + SPACING)
-table_height = maxheight * (OC_SIZE * 2 + SPACING)
+table_height = maxlevel * (OC_SIZE * 2 + SPACING)
+table_width = maxwidth * (OC_SIZE * 2 + SPACING)
 table_image = Image.new('RGB', (table_width, table_height), (255, 255, 255))
 draw = ImageDraw.Draw(table_image)
 
@@ -92,19 +95,27 @@ for i in range(0, maxlevel):
         kid = people[b[2]]
         relationshiplevel = max(mom.getlevel(), dad.getlevel())
         if relationshiplevel == i:
-            mompos = (i*OC_SIZE*2 + i*SPACING, j*OC_SIZE + j*SPACING//2)
-            dadpos = (i*OC_SIZE*2 + i*SPACING, j*OC_SIZE + OC_SIZE + j*SPACING//2)
-            kidpos = (i*OC_SIZE*2 + OC_SIZE + i*SPACING, j*OC_SIZE + OC_SIZE//2 + j*SPACING//2)
+            mompos = (j*OC_SIZE + j*SPACING//2, i*OC_SIZE*2 + i*SPACING)
+            dadpos = (j*OC_SIZE + OC_SIZE + j*SPACING//2, i*OC_SIZE*2 + i*SPACING)
+            kidpos = (j*OC_SIZE + OC_SIZE//2 + j*SPACING//2, i*OC_SIZE*2 + OC_SIZE + i*SPACING)
 
             for box in [mompos, dadpos, kidpos]:
                 draw.rectangle((box[0], box[1], box[0] + OC_SIZE - 1, box[1] + OC_SIZE - 1), outline="black", width=2)
             
+            if ALLNAMES:
+                draw.text(mompos, mom.name, font=font, fill=(0, 0, 0))
+                draw.text(dadpos, dad.name, font=font, fill=(0, 0, 0))
+                draw.text(kidpos, kid.name, font=font, fill=(0, 0, 0))
+
             try:
                 table_image.paste(images[mom.name], mompos, images[mom.name])
             except KeyError:
                 # If the image doesn't exist, draw the name instead
                 table_image.paste(images['unknown'], mompos, images['unknown'])
-                draw.text(mompos, mom.name, font=font, fill=(0, 0, 0))
+                if not ALLNAMES:
+                    draw.text(mompos, mom.name, font=font, fill=(0, 0, 0))
+                
+                
             except ValueError:
                 #this portrait isn't transparent
                 table_image.paste(images[mom.name], mompos)
@@ -114,7 +125,8 @@ for i in range(0, maxlevel):
             except KeyError:
                 # If the image doesn't exist, draw the name instead
                 table_image.paste(images['unknown'], dadpos, images['unknown'])
-                draw.text(dadpos, dad.name, font=font, fill=(0, 0, 0))
+                if not ALLNAMES:
+                    draw.text(dadpos, dad.name, font=font, fill=(0, 0, 0))
             except ValueError:
                 #this portrait isn't transparent
                 table_image.paste(images[dad.name], dadpos)
@@ -123,8 +135,10 @@ for i in range(0, maxlevel):
                 table_image.paste(images[kid.name], kidpos, images[kid.name])
             except KeyError:
                 # If the image doesn't exist, draw the name instead
+                
                 table_image.paste(images['unknown'], kidpos, images['unknown'])
-                draw.text(kidpos, kid.name, font=font, fill=(0, 0, 0))
+                if not ALLNAMES:
+                    draw.text(kidpos, kid.name, font=font, fill=(0, 0, 0))
             except ValueError:
                 #this portrait isn't transparent
                 table_image.paste(images[kid.name], kidpos)
